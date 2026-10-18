@@ -181,4 +181,22 @@
         <item>Negative only</item>
     </string-array>
 
+    <!-- Barcode food scanner -->
+    <string name="barcode_scan">Scan food barcode</string>
+    <string name="barcode_scan_prompt">Point the camera at the food barcode</string>
+    <string name="barcode_looking_up">Looking up product…</string>
+    <string name="barcode_invalid">Not a valid food barcode: %1$s</string>
+    <string name="barcode_not_found">Product %1$s not found in Open Food Facts. Enter carbs manually.</string>
+    <string name="barcode_no_carb_data">%1$s has no carbohydrate data in Open Food Facts. Enter carbs manually.</string>
+    <string name="barcode_invalid_carb_data">%1$s has implausible carb data (%2$s g per 100 g). Enter carbs manually.</string>
+    <string name="barcode_lookup_failed">Lookup failed (no internet?). Enter carbs manually.</string>
+    <string name="barcode_carbs_per_100">Carbs: %1$s g per 100 g/ml</string>
+    <string name="barcode_amount">Amount eaten (g or ml)</string>
+    <string name="barcode_one_serving">1 serving (%1$s g)</string>
+    <string name="barcode_result">= %1$d g carbs</string>
+    <string name="barcode_result_too_high">%1$d g is above the max carbs limit (%2$d g)</string>
+    <string name="barcode_warning_sugars">Warning: sugars (%1$s g) are higher than carbs (%2$s g) per 100 g – the data may be wrong. Check the package label.</string>
+    <string name="barcode_check_label">Data from Open Food Facts (crowd-sourced). Check against the package label.</string>
+    <string name="barcode_add">Add</string>
+    <string name="barcode_note">%1$s %2$s g</string>
 </resources>

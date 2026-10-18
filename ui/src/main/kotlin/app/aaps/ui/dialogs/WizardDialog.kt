@@ -53,6 +53,7 @@ import app.aaps.core.ui.toast.ToastUtils
 import app.aaps.core.utils.HtmlHelper
 import app.aaps.ui.R
 import app.aaps.ui.databinding.DialogWizardBinding
+import app.aaps.ui.dialogs.barcode.BarcodeCarbsHelper
 import dagger.android.support.DaggerDialogFragment
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -91,6 +92,7 @@ class WizardDialog : DaggerDialogFragment() {
     private var notesPassedIntoWizard = ""
     private var okClicked: Boolean = false // one shot guards
     private var disposable: CompositeDisposable = CompositeDisposable()
+    private val barcodeHelper = BarcodeCarbsHelper(this)
     private var bolusStep = 0.0
     private var _binding: DialogWizardBinding? = null
 
@@ -288,6 +290,17 @@ class WizardDialog : DaggerDialogFragment() {
             .toObservable(EventAutosensCalculationFinished::class.java)
             .observeOn(aapsSchedulers.main)
             .subscribe({ calculateInsulin() }, fabricPrivacy::logException)
+        // Barcode scan: only pre-fills carbs and notes; the bolus still needs the usual confirmation
+        barcodeHelper.setup(aapsSchedulers, disposable, { constraintChecker.getMaxCarbsAllowed().value() }) { carbs, note ->
+            _binding?.let { binding ->
+                binding.carbsInput.value = binding.carbsInput.value + carbs
+                binding.carbsInput.announceValue()
+                val notes = binding.notesLayout.notes
+                notes.setText(if (notes.text.isNullOrBlank()) note else "${notes.text}, $note")
+                calculateInsulin()
+            }
+        }
+        binding.scanBarcode.setOnClickListener { barcodeHelper.scan() }
         setA11yLabels()
     }
 

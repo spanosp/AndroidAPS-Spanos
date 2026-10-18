@@ -29,6 +29,7 @@ import app.aaps.core.interfaces.pump.DetailedBolusInfo
 import app.aaps.core.interfaces.queue.Callback
 import app.aaps.core.interfaces.queue.CommandQueue
 import app.aaps.core.interfaces.resources.ResourceHelper
+import app.aaps.core.interfaces.rx.AapsSchedulers
 import app.aaps.core.interfaces.ui.UiInteraction
 import app.aaps.core.interfaces.utils.DecimalFormatter
 import app.aaps.core.interfaces.utils.HardLimits
@@ -42,6 +43,7 @@ import app.aaps.core.ui.toast.ToastUtils
 import app.aaps.core.utils.HtmlHelper
 import app.aaps.ui.R
 import app.aaps.ui.databinding.DialogCarbsBinding
+import app.aaps.ui.dialogs.barcode.BarcodeCarbsHelper
 import com.google.common.base.Joiner
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -67,9 +69,11 @@ class CarbsDialog : DialogFragmentWithDate() {
     @Inject lateinit var protectionCheck: ProtectionCheck
     @Inject lateinit var uiInteraction: UiInteraction
     @Inject lateinit var decimalFormatter: DecimalFormatter
+    @Inject lateinit var aapsSchedulers: AapsSchedulers
 
     private var queryingProtection = false
     private val disposable = CompositeDisposable()
+    private val barcodeHelper = BarcodeCarbsHelper(this)
 
     private val textWatcher: TextWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable) {
@@ -224,6 +228,17 @@ class CarbsDialog : DialogFragmentWithDate() {
             binding.hypoTt.isChecked = false
             binding.activityTt.isChecked = false
         }
+        // Barcode scan: only pre-fills carbs and notes; the user still confirms with OK
+        barcodeHelper.setup(aapsSchedulers, disposable, { constraintChecker.getMaxCarbsAllowed().value() }) { carbs, note ->
+            _binding?.let { binding ->
+                binding.carbs.value = max(0.0, binding.carbs.value + carbs)
+                validateInputs()
+                binding.carbs.announceValue()
+                val notes = binding.notesLayout.notes
+                notes.setText(if (notes.text.isNullOrBlank()) note else "${notes.text}, $note")
+            }
+        }
+        binding.scanBarcode.setOnClickListener { barcodeHelper.scan() }
         binding.durationLabel.labelFor = binding.duration.editTextId
         binding.timeLabel.labelFor = binding.time.editTextId
         binding.carbsLabel.labelFor = binding.carbs.editTextId

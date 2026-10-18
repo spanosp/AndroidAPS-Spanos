@@ -25,6 +25,8 @@ dependencies {
     testImplementation(project(":shared:tests"))
 
     api(libs.androidx.core)
+    // Barcode scanning for food carb lookup (works without Google Play services)
+    implementation(libs.com.journeyapps.zxing.android.embedded)
     ksp(libs.com.google.dagger.compiler)
     ksp(libs.com.google.dagger.android.processor)
 }
